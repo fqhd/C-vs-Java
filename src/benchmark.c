@@ -128,7 +128,6 @@ uint64_t getPRN(){
 
 	int bigNumStringLength = strlen(bigNumString);
 	char* firstOut = malloc(5);
-	char* secondOut = malloc(5);
 	firstOut[4] = '\0';
 	for(int i = 0; i < 4; i++){
 		int digitInBigNum = bigNumString[bigNumStringLength - i - 1] - 48;
@@ -137,6 +136,11 @@ uint64_t getPRN(){
 
 	s.a = to_number(firstOut);
 	s.b++;
+
+	free(firstOut);
+	free(bigNumString);
+	free(secondNum);
+	free(firstNum);
 
 	return s.a + s.b;
 }
