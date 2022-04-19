@@ -7,9 +7,7 @@ import java.util.List;
 public class Benchmark {
 
     public static void main(String[] args) {
-        long start = System.currentTimeMillis();
         main();
-        System.out.println("End: " + (System.currentTimeMillis() - start));
     }
     
     static class Seed {
@@ -197,7 +195,9 @@ public class Benchmark {
         float[] seed_array = new float[WIDTH * WIDTH];
         float[] noise_array = new float[WIDTH * WIDTH];
 
+        long start = System.currentTimeMillis();
         noise2D(seed_array, WIDTH, noise_array, 10);
+        System.out.println("End: " + (System.currentTimeMillis() - start));
 
         try {
             Files.write(new File("out.json").toPath(), List.of(Arrays.toString(seed_array)), StandardCharsets.UTF_8);

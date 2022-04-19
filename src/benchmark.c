@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 // int rng(){
 // 	static int seed = 651321;
@@ -197,7 +198,7 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves, floa
 	// Fill seed array with rng values
 	double max_uint = pow(2, 32);
 	for(int i = 0; i < width * width; i++){
-		seed_array[i] = rand() % 10000 / 9999.0f;
+		seed_array[i] = rng2() / max_uint;
 	}
 	// Fill noise array with zeros
 	for(int i = 0; i < width * width; i++){
@@ -235,16 +236,22 @@ int main(){
 	float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
 	float* noise_array = malloc(WIDTH * WIDTH * sizeof(float));
 	float roughness = 1.3f;
+
+	uint64_t begin = clock();
 	noise2D(seed_array, WIDTH, noise_array, 8, roughness);
+	uint64_t end = clock();
+	
+	uint64_t difference = (end-begin) / (float)CLOCKS_PER_SEC;
+	printf("Time: %llu\n", difference);
 
 	FILE* file = fopen("output.json", "w");
 	const char* line = "{\"array\": [";
 	fwrite(line, 1, strlen(line), file);
 
 	for(int i = 0; i < WIDTH * WIDTH - 1; i++){
-		fprintf(file, "%f,", noise_array[i]);
+		fprintf(file, "%f,", seed_array[i]);
 	}
-	fprintf(file, "%f", noise_array[WIDTH * WIDTH - 1]);
+	fprintf(file, "%f", seed_array[WIDTH * WIDTH - 1]);
 
 	fwrite("]}", 1, 2, file);
 	fclose(file);
