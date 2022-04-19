@@ -136,6 +136,7 @@ uint64_t getPRN(){
 
 	s.a = to_number(firstOut);
 	s.b++;
+	s.b = s.b % 10000; // Wrap around
 
 	free(firstOut);
 	free(bigNumString);
@@ -160,7 +161,7 @@ uint64_t getPRN(){
 void noise1D(float* seed_array, int length, float* noise_array, int octaves){
 	// Fill seed array with rng values
 	for(int i = 0; i < length; i++){
-		seed_array[i] = rand() / 9999.0f;
+		seed_array[i] = getPRN() / 99999.0f;
 	}
 	// Fill noise array with zeros
 	for(int i = 0; i < length; i++){
