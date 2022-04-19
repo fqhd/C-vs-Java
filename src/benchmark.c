@@ -116,11 +116,14 @@ char* mix_strings(char* a, char* b){
 
 uint64_t getPRN(){
 	static Seed s = {2512, 3684};
+	if(s.b < 1000){
+		s.b = 1000;
+	}
+	if(s.a < 1000){
+		s.a = 1000;
+	}
 
 	char* firstNum = to_string(s.a);
-	if(s.b < 1000){
-		s.b += 1000;
-	}
 	char* secondNum = to_string(s.b);
 	char* mixed_strings = mix_strings(firstNum, secondNum);
 
@@ -145,7 +148,6 @@ uint64_t getPRN(){
 	free(bigNumString);
 	free(secondNum);
 	free(firstNum);
-	printf("a: %d, b: %d\n", s.a, s.b);
 
 	return s.a + s.b;
 }
@@ -231,22 +233,22 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves){
 int main(){
 	printf("%u\n", rng2());
 
-	const int WIDTH = 512;
-	float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
-	float* noise_array = malloc(WIDTH * WIDTH * sizeof(float));
-	noise2D(seed_array, WIDTH, noise_array, 10);
+	// const int WIDTH = 512;
+	// float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
+	// float* noise_array = malloc(WIDTH * WIDTH * sizeof(float));
+	// noise2D(seed_array, WIDTH, noise_array, 10);
 
-	FILE* file = fopen("output.json", "w");
-	const char* line = "{\"array\": [";
-	fwrite(line, 1, strlen(line), file);
+	// FILE* file = fopen("output.json", "w");
+	// const char* line = "{\"array\": [";
+	// fwrite(line, 1, strlen(line), file);
 
-	for(int i = 0; i < WIDTH * WIDTH - 1; i++){
-		fprintf(file, "%f,", seed_array[i]);
-	}
-	fprintf(file, "%f", seed_array[WIDTH * WIDTH - 1]);
+	// for(int i = 0; i < WIDTH * WIDTH - 1; i++){
+	// 	fprintf(file, "%f,", seed_array[i]);
+	// }
+	// fprintf(file, "%f", seed_array[WIDTH * WIDTH - 1]);
 
-	fwrite("]}", 1, 2, file);
-	fclose(file);
+	// fwrite("]}", 1, 2, file);
+	// fclose(file);
 
 	return 0;
 }
