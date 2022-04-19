@@ -116,7 +116,7 @@ public class Benchmark {
         int answer = 0;
         for (int i = 0; i < 32; i++) {
             if (getPRN() % 2 == 1) {
-                answer |= 1 << i;
+                answer += Math.pow(2, i);
             }
         }
         return answer;
@@ -127,7 +127,7 @@ public class Benchmark {
         // Fill seed array with rng values
         double max_uint = Math.pow(2, 32);
         for (int i = 0; i < length; i++) {
-            seed_array[i] = (float) (rng2() / max_uint);
+            seed_array[i] = (float) (rng2() / (float)max_uint);
         }
         // Fill noise array with zeros
         for (int i = 0; i < length; i++) {
@@ -152,11 +152,11 @@ public class Benchmark {
         }
     }
 
-    static void noise2D(float[] seed_array, int width, float[] noise_array, int octaves) {
+    static void noise2D(float[] seed_array, int width, float[] noise_array, int octaves, float roughness) {
         // Fill seed array with rng values
         double max_uint = Math.pow(2, 32);
         for (int i = 0; i < width * width; i++) {
-            seed_array[i] = rng2() % 1000 / 999.0f;
+            seed_array[i] = (float)(rng2() / max_uint);
         }
         // Fill noise array with zeros
         for (int i = 0; i < width * width; i++) {
@@ -182,7 +182,7 @@ public class Benchmark {
 
                     noise += (blendY * (lerpB - lerpT) + lerpT) * scale;
                     maxScale += scale;
-                    scale /= 2.0f;
+                    scale /= roughness;
                 }
                 noise_array[y * width + x] = noise / maxScale;
             }
@@ -194,9 +194,10 @@ public class Benchmark {
 
         float[] seed_array = new float[WIDTH * WIDTH];
         float[] noise_array = new float[WIDTH * WIDTH];
+		float roughness = 1.3f;
 
         long start = System.currentTimeMillis();
-        noise2D(seed_array, WIDTH, noise_array, 10);
+        noise2D(seed_array, WIDTH, noise_array, 8, roughness);
         System.out.println("End: " + (System.currentTimeMillis() - start));
 
         try {
