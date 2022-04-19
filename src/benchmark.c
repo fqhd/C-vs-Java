@@ -94,8 +94,8 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves){
 				float lerpB = (1.0f - blendX) * seed_array[sampleY2 * width + sampleX1] + blendX * seed_array[sampleY2 * width + sampleX2];
 				
 				noise += (blendY * (lerpB - lerpT) + lerpT) * scale;
-				scale /= 2.0f;
 				maxScale += scale;
+				scale /= 2.0f;
 			}
 			noise_array[y * width + x] = noise / maxScale;
 		}
@@ -103,14 +103,21 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves){
 }
 
 int main(){
-	const int WIDTH = 32;
+	const int WIDTH = 256;
 	float seed_array[WIDTH * WIDTH];
 	float noise_array[WIDTH * WIDTH];
 	noise2D(seed_array, WIDTH, noise_array, 4);
 
-	FILE* file = fopen("output.txt", "a");
-	const char* str = "heya";
-	fwrite(str, 1, strlen(str), file);
+	FILE* file = fopen("output.json", "w");
+	const char* line = "{\"array\": [";
+	fwrite(line, 1, strlen(line), file);
+
+	for(int i = 0; i < WIDTH * WIDTH - 1; i++){
+		fprintf(file, "%f,", noise_array[i]);
+	}
+	fprintf(file, "%f", noise_array[WIDTH * WIDTH - 1]);
+
+	fwrite("]}", 1, 2, file);
 	fclose(file);
 
 	return 0;
