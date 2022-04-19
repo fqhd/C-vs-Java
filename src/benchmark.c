@@ -118,6 +118,9 @@ uint64_t getPRN(){
 	static Seed s = {2512, 3684};
 
 	char* firstNum = to_string(s.a);
+	if(s.b < 1000){
+		s.b += 1000;
+	}
 	char* secondNum = to_string(s.b);
 	char* mixed_strings = mix_strings(firstNum, secondNum);
 
@@ -142,26 +145,28 @@ uint64_t getPRN(){
 	free(bigNumString);
 	free(secondNum);
 	free(firstNum);
+	printf("a: %d, b: %d\n", s.a, s.b);
 
 	return s.a + s.b;
 }
 
-// int rng2(){
-// 	// Create number by flipping bits
-// 	unsigned int answer = 0;
-// 	for(int i = 0; i < 32; i++){
-// 		if(getPseudoRandomSeed() % 2){
-// 			answer |= 1 << i;
-// 		}
-// 	}
-// 	return answer;
-// }
+uint32_t rng2(){
+	// Create number by flipping bits
+	uint32_t answer = 0;
+	for(int i = 0; i < 32; i++){
+		if(getPRN() % 2){
+			answer |= 1 << i;
+		}
+	}
+	return answer;
+}
 
 // Perlin-Like noise implementation by javidx9 https://www.youtube.com/watch?v=6-0UaeJBumA&ab_channel=javidx9
 void noise1D(float* seed_array, int length, float* noise_array, int octaves){
 	// Fill seed array with rng values
+	double max_uint = pow(2, 32);
 	for(int i = 0; i < length; i++){
-		seed_array[i] = getPRN() / 99999.0f;
+		seed_array[i] = rng2() / max_uint;
 	}
 	// Fill noise array with zeros
 	for(int i = 0; i < length; i++){
@@ -188,8 +193,9 @@ void noise1D(float* seed_array, int length, float* noise_array, int octaves){
 
 void noise2D(float* seed_array, int width, float* noise_array, int octaves){
 	// Fill seed array with rng values
+	double max_uint = pow(2, 32);
 	for(int i = 0; i < width * width; i++){
-		seed_array[i] = rand() / 9999.0f;
+		seed_array[i] = rng2() / 99999.0f;
 	}
 	// Fill noise array with zeros
 	for(int i = 0; i < width * width; i++){
@@ -223,19 +229,9 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves){
 }
 
 int main(){
-	int numOdds = 0;
-	for(int i = 0; i < 100000; i++){
-		if((getPRN() % 10) == 0){
-			numOdds++;
-		}
-	}
-	float percentage = numOdds / 100000.0f;
+	printf("%u\n", rng2());
 
-	printf("Accuracy: %f\n", percentage);
-
-
-	srand(4768);
-	const int WIDTH = 128;
+	const int WIDTH = 512;
 	float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
 	float* noise_array = malloc(WIDTH * WIDTH * sizeof(float));
 	noise2D(seed_array, WIDTH, noise_array, 10);
