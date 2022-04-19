@@ -38,7 +38,7 @@ int random(){
 }
 
 // Perlin-Like noise implementation by javidx9 https://www.youtube.com/watch?v=6-0UaeJBumA&ab_channel=javidx9
-void fnoise(float* seed_array, int length, float* noise_array, int octaves){
+void noise1D(float* seed_array, int length, float* noise_array, int octaves){
 	for(int x = 0; x < length; x++){
 		float noise = 0.0f;
 		float scale = 1.0f;
@@ -57,11 +57,47 @@ void fnoise(float* seed_array, int length, float* noise_array, int octaves){
 	}
 }
 
+void noise2D(float* seed_array, int width, float* noise_array, int octaves){
+	// Fill seed array with random values
+	for(int i = 0; i < width * width; i++){
+		seed_array[i] = random() / 9999.0f;
+	}
+	// Fill noise array with zeros
+	for(int i = 0; i < width * width; i++){
+		noise_array[i] = 0.0f;
+	}
+
+	for(int x = 0; x < width; x++){
+		for(int y = 0; y < width; y++){
+			float noise = 0.0f;
+			float scale = 1.0f;
+			float maxScale = 0.0f;
+			for(int o = 0; o < octaves; o++){
+				int pitch = width >> o;
+				int sampleX1 = (x / pitch) * pitch;
+				int sampleY1 = (y / pitch) * pitch;
+				int sampleX2 = (sampleX1 + pitch) % width;
+				int sampleY2 = (sampleY1 + pitch) % width;
+				float blendX = (x - sampleX1) / (float)pitch;
+				float blendY = (x - sampleY1) / (float)pitch;
+
+				float lerpT = (1.0f - blendX) * seed_array[sampleY1 * width + sampleX1] + blendX * seed_array[sampleY1 * width + sampleX2];
+				float lerpB = (1.0f - blendX) * seed_array[sampleY2 * width + sampleX1] + blendX * seed_array[sampleY2 * width + sampleX2];
+				
+				noise += (blendY * (lerpB - lerpT) + lerpT) * scale;
+				scale /= 2.0f;
+				maxScale += scale;
+			}
+			noise_array[y * width + x] = noise / maxScale;
+		}
+	}
+}
+
 int main(){
-	const int LENGTH = 32;
-	float seed_array[LENGTH];
-	float noise_array[LENGTH];
-	fnoise(seed_array, LENGTH, noise_array, 4);
+	const int WIDTH = 32;
+	float seed_array[WIDTH * WIDTH];
+	float noise_array[WIDTH * WIDTH];
+	noise1D(seed_array, WIDTH, noise_array, 4);
 
 	return 0;
 }
