@@ -197,7 +197,7 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves){
 	// Fill seed array with rng values
 	double max_uint = pow(2, 32);
 	for(int i = 0; i < width * width; i++){
-		seed_array[i] = rng2() / 99999.0f;
+		seed_array[i] = rng2() % 1000/ 999.0f;
 	}
 	// Fill noise array with zeros
 	for(int i = 0; i < width * width; i++){
@@ -231,24 +231,22 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves){
 }
 
 int main(){
-	printf("%u\n", rng2());
+	const int WIDTH = 512;
+	float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
+	float* noise_array = malloc(WIDTH * WIDTH * sizeof(float));
+	noise2D(seed_array, WIDTH, noise_array, 10);
 
-	// const int WIDTH = 512;
-	// float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
-	// float* noise_array = malloc(WIDTH * WIDTH * sizeof(float));
-	// noise2D(seed_array, WIDTH, noise_array, 10);
+	FILE* file = fopen("output.json", "w");
+	const char* line = "{\"array\": [";
+	fwrite(line, 1, strlen(line), file);
 
-	// FILE* file = fopen("output.json", "w");
-	// const char* line = "{\"array\": [";
-	// fwrite(line, 1, strlen(line), file);
+	for(int i = 0; i < WIDTH * WIDTH - 1; i++){
+		fprintf(file, "%f,", seed_array[i]);
+	}
+	fprintf(file, "%f", seed_array[WIDTH * WIDTH - 1]);
 
-	// for(int i = 0; i < WIDTH * WIDTH - 1; i++){
-	// 	fprintf(file, "%f,", seed_array[i]);
-	// }
-	// fprintf(file, "%f", seed_array[WIDTH * WIDTH - 1]);
-
-	// fwrite("]}", 1, 2, file);
-	// fclose(file);
+	fwrite("]}", 1, 2, file);
+	fclose(file);
 
 	return 0;
 }
