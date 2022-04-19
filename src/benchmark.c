@@ -106,7 +106,12 @@ int main(){
 	const int WIDTH = 32;
 	float seed_array[WIDTH * WIDTH];
 	float noise_array[WIDTH * WIDTH];
-	noise1D(seed_array, WIDTH, noise_array, 4);
+	noise2D(seed_array, WIDTH, noise_array, 4);
+
+	FILE* file = fopen("output.txt", "a");
+	const char* str = "heya";
+	fwrite(str, 1, strlen(str), file);
+	fclose(file);
 
 	return 0;
 }
