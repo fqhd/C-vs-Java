@@ -37,8 +37,31 @@ int random(){
 	return answer;
 }
 
+// Perlin-Like noise implementation by javidx9 https://www.youtube.com/watch?v=6-0UaeJBumA&ab_channel=javidx9
+void fnoise(float* seed_array, int length, float* noise_array, int octaves){
+	for(int x = 0; x < length; x++){
+		float noise = 0.0f;
+		float scale = 1.0f;
+		float maxScale = 0.0f;
+		for(int o = 0; o < octaves; o++){
+			int pitch = length >> o;
+			int sample1 = (x / pitch) * pitch;
+			int sample2 = (sample1 + pitch) % length;
+			float blend = (x - sample1) / pitch;
+			float lerp = (blend - 1.0f) * seed_array[sample1] + blend * seed_array[sample2];
+			noise += lerp * scale;
+			scale /= 2.0f;
+			maxScale += scale;
+		}
+		noise_array[x] = noise / maxScale;
+	}
+}
+
 int main(){
-	printf("%d\n", random());
+	const int LENGTH = 32;
+	float seed_array[LENGTH];
+	float noise_array[LENGTH];
+	fnoise(seed_array, LENGTH, noise_array, 4);
 
 	return 0;
 }
