@@ -193,11 +193,11 @@ void noise1D(float* seed_array, int length, float* noise_array, int octaves){
 	}
 }
 
-void noise2D(float* seed_array, int width, float* noise_array, int octaves){
+void noise2D(float* seed_array, int width, float* noise_array, int octaves, float roughness){
 	// Fill seed array with rng values
 	double max_uint = pow(2, 32);
 	for(int i = 0; i < width * width; i++){
-		seed_array[i] = rng2() % 1000/ 999.0f;
+		seed_array[i] = rand() % 10000 / 9999.0f;
 	}
 	// Fill noise array with zeros
 	for(int i = 0; i < width * width; i++){
@@ -216,14 +216,14 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves){
 				int sampleX2 = (sampleX1 + pitch) % width;
 				int sampleY2 = (sampleY1 + pitch) % width;
 				float blendX = (x - sampleX1) / (float)pitch;
-				float blendY = (x - sampleY1) / (float)pitch;
+				float blendY = (y - sampleY1) / (float)pitch;
 
 				float lerpT = (1.0f - blendX) * seed_array[sampleY1 * width + sampleX1] + blendX * seed_array[sampleY1 * width + sampleX2];
 				float lerpB = (1.0f - blendX) * seed_array[sampleY2 * width + sampleX1] + blendX * seed_array[sampleY2 * width + sampleX2];
 				
 				noise += (blendY * (lerpB - lerpT) + lerpT) * scale;
 				maxScale += scale;
-				scale /= 2.0f;
+				scale /= roughness;
 			}
 			noise_array[y * width + x] = noise / maxScale;
 		}
@@ -234,16 +234,17 @@ int main(){
 	const int WIDTH = 512;
 	float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
 	float* noise_array = malloc(WIDTH * WIDTH * sizeof(float));
-	noise2D(seed_array, WIDTH, noise_array, 10);
+	float roughness = 1.3f;
+	noise2D(seed_array, WIDTH, noise_array, 8, roughness);
 
 	FILE* file = fopen("output.json", "w");
 	const char* line = "{\"array\": [";
 	fwrite(line, 1, strlen(line), file);
 
 	for(int i = 0; i < WIDTH * WIDTH - 1; i++){
-		fprintf(file, "%f,", seed_array[i]);
+		fprintf(file, "%f,", noise_array[i]);
 	}
-	fprintf(file, "%f", seed_array[WIDTH * WIDTH - 1]);
+	fprintf(file, "%f", noise_array[WIDTH * WIDTH - 1]);
 
 	fwrite("]}", 1, 2, file);
 	fclose(file);
