@@ -4,201 +4,58 @@
 #include <stdlib.h>
 #include <time.h>
 
-// int rng(){
-// 	static int seed = 651321;
-// 	int squared_num = pow(seed, 2);
-// 	char str[8];
+char* seed;
 
-// 	// Initialize the str with 0s
-// 	for(int i = 0; i < 8; i++){
-// 		str[i] = '0';
-// 	}
-
-// 	// Print squared_num to str
-	// int multiple = 1;
-	// for(int i = 7; i >= 0; i--){
-	// 	int divided_num = squared_num / multiple;
-	// 	int digit = divided_num % 10;
-	// 	str[i] = 48 + digit;
-	// 	multiple *= 10;
-	// }
-
-	// // Get 4 middle numbers in str and store them in r->curr
-	// int answer = 0;
-	// int multiplier = 1000;
-	// for(int i = 2; i < 6; i++){
-	// 	char dig = str[i];
-	// 	int digit = dig - 48;
-	// 	answer += digit * multiplier;
-	// 	multiplier /= 10;
-	// }
-
-// 	seed = answer;
-
-// 	return answer;
-// }
-
-// int getPseudoRandomSeed(){
-// 	static int seed = 7;
-// 	const int MAGIC_NUMBER = 37;
-	
-// 	// Get new seed
-// 	int b = abs(MAGIC_NUMBER - seed);
-// 	seed = ((seed * b) % MAGIC_NUMBER) + 11;
-
-// 	return seed;
-// }
-
-typedef struct {
-	uint64_t a;
-	uint64_t b;
-} Seed;
-
-uint8_t get_num_digits(uint64_t n){
-	uint8_t num_digits = 0;
-
-	uint64_t multiple = 1;
-	while(n/multiple != 0){
-		num_digits++;
-		multiple *= 10;
-	}
-
-	return num_digits;
-}
-
-char* to_string(uint64_t n){
-	// Get num digits
-	uint64_t num_digits = get_num_digits(n);
-
-	// Allocate enough space for string
-	char* str = malloc(num_digits + 1);
-
-	// Print number into string
-	uint64_t multiple = 1;
-	for(int i = num_digits - 1; i >= 0; i--){
-		uint64_t divided_num = n / multiple;
-		int digit = divided_num % 10;
-		str[i] = 48 + digit;
-		multiple *= 10;
-	}
-	str[num_digits] = '\0';
-
-	// Return string
+char* make_string(const char* s){
+	char* str = malloc(strlen(s) + 1);
+	memcpy(str, s, strlen(s) + 1);
 	return str;
 }
 
-uint64_t to_number(char* s){
-	uint64_t number = 0;
-	uint64_t multiple = 1;
-	for(int i = strlen(s) - 1; i >= 0; i--){
-		number += (s[i] - 48) * multiple;
-		multiple *= 10;
+void shiftString(char* string){
+	int stringLength = strlen(string);
+	for(int i = stringLength - 1; i >= 1; i--){
+		string[i] = string[i - 1];
 	}
-	return number;
+	string[0] = '0';
 }
 
-char* mix_strings(char* a, char* b){
-	int joined_lengths = strlen(a) + strlen(b);
-	char* result = malloc(joined_lengths + 1);
-	int aIndex = 0;
-	int bIndex = 0;
-	for(int i = 0; i < joined_lengths; i++){
-		if(i % 2){
-			result[i] = a[aIndex];
-			aIndex++;
-		}else{
-			result[i] = b[bIndex];
-			bIndex++;
-		}
+char xor(char a, char b){
+	if(a == b){
+		return '0';
 	}
-	result[joined_lengths] = '\0';
-	return result;
+	return '1';
+}
+char lfsr(){
+	// Returns random number between 0 and 2^32
+	char a = seed[strlen(seed) - 3];
+	char b = seed[strlen(seed) - 11];
+	char carryBit = xor(a, b);
+
+	char outputBit = seed[strlen(seed) - 1];
+
+	shiftString(seed);
+
+	seed[0] = carryBit;
+
+	return outputBit;
 }
 
-uint64_t getPRN(){
-	static Seed s = {2512, 3684};
-	if(s.b < 1000){
-		s.b = 1000;
-	}
-	if(s.a < 1000){
-		s.a = 1000;
-	}
-
-	char* firstNum = to_string(s.a);
-	char* secondNum = to_string(s.b);
-	char* mixed_strings = mix_strings(firstNum, secondNum);
-
-	uint64_t bigNum = to_number(mixed_strings);
-	bigNum = bigNum * bigNum;
-
-	char* bigNumString = to_string(bigNum);
-
-	int bigNumStringLength = strlen(bigNumString);
-	char* firstOut = malloc(5);
-	firstOut[4] = '\0';
-	for(int i = 0; i < 4; i++){
-		int digitInBigNum = bigNumString[bigNumStringLength - i - 1] - 48;
-		firstOut[i] = bigNumString[digitInBigNum];
-	}
-
-	s.a = to_number(firstOut);
-	s.b++;
-	s.b = s.b % 10000; // Wrap around
-
-	free(firstOut);
-	free(bigNumString);
-	free(secondNum);
-	free(firstNum);
-
-	return s.a + s.b;
-}
-
-uint32_t rng2(){
+uint32_t rng(){
 	// Create number by flipping bits
 	uint32_t answer = 0;
 	for(int i = 0; i < 32; i++){
-		if(getPRN() % 2){
+		if(lfsr() == '1'){
 			answer |= 1 << i;
 		}
 	}
 	return answer;
 }
 
-// Perlin-Like noise implementation by javidx9 https://www.youtube.com/watch?v=6-0UaeJBumA&ab_channel=javidx9
-void noise1D(float* seed_array, int length, float* noise_array, int octaves){
-	// Fill seed array with rng values
-	double max_uint = pow(2, 32);
-	for(int i = 0; i < length; i++){
-		seed_array[i] = rng2() / max_uint;
-	}
-	// Fill noise array with zeros
-	for(int i = 0; i < length; i++){
-		noise_array[i] = 0.0f;
-	}
-
-	for(int x = 0; x < length; x++){
-		float noise = 0.0f;
-		float scale = 1.0f;
-		float maxScale = 0.0f;
-		for(int o = 0; o < octaves; o++){
-			int pitch = length >> o;
-			int sample1 = (x / pitch) * pitch;
-			int sample2 = (sample1 + pitch) % length;
-			float blend = (x - sample1) / pitch;
-			float lerp = (1.0f - blend) * seed_array[sample1] + blend * seed_array[sample2];
-			noise += lerp * scale;
-			scale /= 2.0f;
-			maxScale += scale;
-		}
-		noise_array[x] = noise / maxScale;
-	}
-}
-
 void noise2D(float* seed_array, int width, float* noise_array, int octaves, float roughness){
 	// Fill seed array with rng values
-	double max_uint = pow(2, 32);
 	for(int i = 0; i < width * width; i++){
-		seed_array[i] = rng2() / max_uint;
+		seed_array[i] = (rng() % 1000) / 999.0f;
 	}
 	// Fill noise array with zeros
 	for(int i = 0; i < width * width; i++){
@@ -232,10 +89,13 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves, floa
 }
 
 int main(){
-	const int WIDTH = 512;
+	seed = make_string("00001101001110100100100100101001");
+
+	// Perlin noise code
+	const int WIDTH = 1024;
 	float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
 	float* noise_array = malloc(WIDTH * WIDTH * sizeof(float));
-	float roughness = 1.3f;
+	float roughness = 1.6f;
 
 	uint64_t begin = clock();
 	noise2D(seed_array, WIDTH, noise_array, 8, roughness);
@@ -249,9 +109,9 @@ int main(){
 	fwrite(line, 1, strlen(line), file);
 
 	for(int i = 0; i < WIDTH * WIDTH - 1; i++){
-		fprintf(file, "%f,", seed_array[i]);
+		fprintf(file, "%f,", noise_array[i]);
 	}
-	fprintf(file, "%f", seed_array[WIDTH * WIDTH - 1]);
+	fprintf(file, "%f", noise_array[WIDTH * WIDTH - 1]);
 
 	fwrite("]}", 1, 2, file);
 	fclose(file);
