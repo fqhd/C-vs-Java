@@ -41,12 +41,12 @@ char lfsr(){
 	return outputBit;
 }
 
-uint32_t rng(){
+int rng(){
 	// Create number by flipping bits
-	uint32_t answer = 0;
-	for(int i = 0; i < 32; i++){
+	int answer = 0;
+	for(int i = 0; i < 24; i++){
 		if(lfsr() == '1'){
-			answer |= 1 << i;
+			answer += pow(2, i);
 		}
 	}
 	return answer;
@@ -90,6 +90,11 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves, floa
 
 int main(){
 	seed = make_string("00001101001110100100100100101001");
+	
+	printf("Random: %d\n", rng());
+	printf("Random: %d\n", rng());
+	printf("Random: %d\n", rng());
+	printf("Random: %d\n", rng());
 
 	// Perlin noise code
 	const int WIDTH = 1024;
@@ -104,7 +109,7 @@ int main(){
 	uint64_t difference = (end-begin) / (float)CLOCKS_PER_SEC;
 	printf("Time: %llu\n", difference);
 
-	FILE* file = fopen("output.json", "w");
+	FILE* file = fopen("output_c.json", "w");
 	const char* line = "{\"array\": [";
 	fwrite(line, 1, strlen(line), file);
 
