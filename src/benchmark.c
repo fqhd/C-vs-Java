@@ -91,23 +91,18 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves, floa
 int main(){
 	seed = make_string("00001101001110100100100100101001");
 	
-	printf("Random: %d\n", rng());
-	printf("Random: %d\n", rng());
-	printf("Random: %d\n", rng());
-	printf("Random: %d\n", rng());
-
 	// Perlin noise code
 	const int WIDTH = 1024;
 	float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
 	float* noise_array = malloc(WIDTH * WIDTH * sizeof(float));
 	float roughness = 1.6f;
 
-	uint64_t begin = clock();
+	clock_t begin = clock();
 	noise2D(seed_array, WIDTH, noise_array, 8, roughness);
-	uint64_t end = clock();
+	clock_t time = clock() - begin;
 	
-	uint64_t difference = (end-begin) / (float)CLOCKS_PER_SEC;
-	printf("Time: %llu\n", difference);
+	float duration = (float)time/CLOCKS_PER_SEC;
+	printf("Time: %f seconds\n", duration);
 
 	FILE* file = fopen("output_c.json", "w");
 	const char* line = "{\"array\": [";
