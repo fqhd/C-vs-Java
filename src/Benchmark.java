@@ -3,6 +3,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.io.FileWriter;
 
 public class Benchmark {
 
@@ -88,7 +89,14 @@ public class Benchmark {
         System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0f + " seconds");
 
         try {
-            Files.write(new File("output_java.json").toPath(), List.of(Arrays.toString(noise_array)), StandardCharsets.UTF_8);
+            FileWriter myWriter = new FileWriter("output_java.json");
+            myWriter.write("{\"array\": [");
+            for(int i = 0; i < WIDTH * WIDTH - 1; i++){
+		        myWriter.write(noise_array[i] + ",");
+	        }
+        	myWriter.write(""+noise_array[WIDTH * WIDTH - 1]);
+        	myWriter.write("]}");
+            myWriter.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
