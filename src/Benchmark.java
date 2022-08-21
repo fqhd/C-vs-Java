@@ -98,7 +98,7 @@ public class Benchmark {
 
         long start = System.currentTimeMillis();
         noise2D(seed_array, WIDTH, noise_array, 8, roughness);
-        System.out.println("Time: " + (System.currentTimeMillis() - start));
+        System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0f + " seconds");
 
         try {
             Files.write(new File("output_java.json").toPath(), List.of(Arrays.toString(noise_array)), StandardCharsets.UTF_8);
