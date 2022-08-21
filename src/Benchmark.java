@@ -90,11 +90,6 @@ public class Benchmark {
     }
 
     static int main() {
-		System.out.println("random: " + rng());
-		System.out.println("random: " + rng());
-		System.out.println("random: " + rng());
-		System.out.println("random: " + rng());
-
         int WIDTH = 1024;
 
         float[] seed_array = new float[WIDTH * WIDTH];
@@ -103,15 +98,13 @@ public class Benchmark {
 
         long start = System.currentTimeMillis();
         noise2D(seed_array, WIDTH, noise_array, 8, roughness);
-        System.out.println("End: " + (System.currentTimeMillis() - start));
+        System.out.println("Time: " + (System.currentTimeMillis() - start));
 
         try {
             Files.write(new File("output_java.json").toPath(), List.of(Arrays.toString(noise_array)), StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        System.out.println(noise_array[0]);
 
         return 0;
     }
