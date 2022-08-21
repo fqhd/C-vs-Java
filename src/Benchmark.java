@@ -54,16 +54,10 @@ public class Benchmark {
 		return answer;
 	}
 
-    private static int alfd = 0;
-
     static void noise2D(float[] seed_array, int width, float[] noise_array, int octaves, float roughness) {
         // Fill seed array with rng values
         for (int i = 0; i < width * width; i++) {
             seed_array[i] = (rng() % 1000) / 999.0f;
-        }
-        // Fill noise array with zeros
-        for (int i = 0; i < width * width; i++) {
-            noise_array[i] = 0.0f;
         }
 
         for (int x = 0; x < width; x++) {
