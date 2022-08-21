@@ -52,6 +52,7 @@ int rng(){
 	return answer;
 }
 
+int alfd = 0;
 void noise2D(float* seed_array, int width, float* noise_array, int octaves, float roughness){
 	// Fill seed array with rng values
 	for(int i = 0; i < width * width; i++){
@@ -64,33 +65,18 @@ void noise2D(float* seed_array, int width, float* noise_array, int octaves, floa
 
 	for(int x = 0; x < width; x++){
 		for(int y = 0; y < width; y++){
-			float noise = 0.0f;
-			float scale = 1.0f;
-			float maxScale = 0.0f;
+			int total = 0;
 			for(int o = 0; o < octaves; o++){
-				int pitch = width >> o;
-				int sampleX1 = (x / pitch) * pitch;
-				int sampleY1 = (y / pitch) * pitch;
-				int sampleX2 = (sampleX1 + pitch) % width;
-				int sampleY2 = (sampleY1 + pitch) % width;
-				float blendX = (x - sampleX1) / (float)pitch;
-				float blendY = (y - sampleY1) / (float)pitch;
-
-				float lerpT = (1.0f - blendX) * seed_array[sampleY1 * width + sampleX1] + blendX * seed_array[sampleY1 * width + sampleX2];
-				float lerpB = (1.0f - blendX) * seed_array[sampleY2 * width + sampleX1] + blendX * seed_array[sampleY2 * width + sampleX2];
-				
-				noise += (blendY * (lerpB - lerpT) + lerpT) * scale;
-				maxScale += scale;
-				scale /= roughness;
+				total += rng() % 255;
 			}
-			noise_array[y * width + x] = noise / maxScale;
+			noise_array[y * width + x] = (float)total / (255 * octaves);
 		}
 	}
 }
 
 int main(){
 	seed = make_string("00001101001110100100100100101001");
-	
+
 	// Perlin noise code
 	const int WIDTH = 1024;
 	float* seed_array = malloc(WIDTH * WIDTH * sizeof(float));
