@@ -1,5 +1,5 @@
 function setup(){
-	fetch('output.json').then(response => response.json()).then(json => {
+	fetch('output_c.json').then(response => response.json()).then(json => {
 		const arr = json.array;
 		const width = Math.sqrt(arr.length);
 		console.log('Width: ' + width);
